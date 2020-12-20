@@ -5,12 +5,6 @@ const items = document.querySelector(".items");
 input.focus();
 let id = 0;
 
-input.addEventListener("keydown", (e) => {
-  if (e) {
-    addBtn.classList.remove("invisible");
-  }
-});
-
 //아이템 추가
 function onAdd() {
   const text = input.value;
@@ -67,6 +61,16 @@ addBtn.addEventListener("click", onAdd);
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     onAdd();
+    addBtn.classList.add("invisible");
+  }
+});
+//키보드 입력 시 클릭 버튼 활성화
+input.addEventListener("keydown", (e) => {
+  if (e) {
+    addBtn.classList.remove("invisible");
+  }
+  if (input.value == "") {
+    addBtn.classList.add("invisible");
   }
 });
 
