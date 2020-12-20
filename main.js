@@ -8,8 +8,6 @@ let id = 0;
 input.addEventListener("keydown", (e) => {
   if (e) {
     addBtn.classList.remove("invisible");
-  } else if (input.value === " ") {
-    console.log("d");
   }
 });
 
