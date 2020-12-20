@@ -5,6 +5,14 @@ const items = document.querySelector(".items");
 input.focus();
 let id = 0;
 
+input.addEventListener("keydown", (e) => {
+  if (e) {
+    addBtn.classList.remove("invisible");
+  } else if (input.value === " ") {
+    console.log("d");
+  }
+});
+
 //아이템 추가
 function onAdd() {
   const text = input.value;
