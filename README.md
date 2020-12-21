@@ -31,7 +31,9 @@
 #### + 추가한 기능
 
 - 입력 클릭 버튼 위치가 애매해서 인풋 옆으로 옮기고, `keydown` 이벤트를 사용해서 평소엔 안보이다가 키보드 입력이 되었을 때 클릭 버튼이 생기게 했음. 반대로 키보드 입력하던 것을 모두 지우면 클릭 버튼이 다시 사라지는 기능은 해결 중이다.
+
   > 해결
+
   ```javascript
   input.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
@@ -49,4 +51,34 @@
     }
   });
   ```
-  생각보다 간단했다.. 일단 엔터 키 눌러서 리스트 입력하면 다시 클릭 버튼 비활성화하고, input.value가 아무것도 없을 때도 비활성화되도록 했다.
+
+  생각보다 간단했다.. 일단 엔터 키 눌러서 리스트 입력하면 다시 클릭 버튼 비활성화하고, input.value가 아무것도 없을 때도 비활성화되도록 했다. 또한 클릭 버튼 입력 시에도 비활성화를 해야 한다.
+
+  - x 버튼이 아니라 완료체크 버튼에 `data-id`를 넣어서 완료된 상태를 체크해야겠다.
+
+  - 완료 체크 부분 성공은 했는데 뭔가 지저분하다.
+
+  ```javascript
+  //완료된 목록
+  items.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    const target = e.target;
+    const toBeDeleted = document.querySelector(`.items__row[data-id="${id}"]`);
+    if (id) {
+      toBeDeleted.remove();
+      input.focus();
+    }
+    if (target.classList.contains("far")) {
+      target.className = "far fa-check-circle item__btn";
+      target.parentNode.classList.toggle("clicked");
+      input.focus();
+      if (!target.parentNode.classList.contains("clicked")) {
+        target.className = "far fa-circle item__btn";
+      }
+    }
+  });
+  ```
+
+  - 201221
+    대폭 수정할 예정...
+    배열로 바꿔보는 게 어떨까?

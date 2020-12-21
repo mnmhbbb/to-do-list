@@ -39,25 +39,28 @@ function createItem(text) {
   return itemRow;
 }
 
-const clickedItem = document.querySelector(".item");
-const itemBtn = document.querySelector(".item__btn");
 //완료된 목록
 items.addEventListener("click", (e) => {
   const id = e.target.dataset.id;
+  const target = e.target;
   const toBeDeleted = document.querySelector(`.items__row[data-id="${id}"]`);
   if (id) {
     toBeDeleted.remove();
-    input.focus();
   }
-  if (e.target.classList.contains("far")) {
-    e.target.className = "far fa-check-circle item__btn";
-    e.target.parentNode.classList.add("clicked");
-    input.focus();
+  if (target.classList.contains("far")) {
+    target.className = "far fa-check-circle item__btn";
+    target.parentNode.classList.toggle("clicked");
+    if (!target.parentNode.classList.contains("clicked")) {
+      target.className = "far fa-circle item__btn";
+    }
   }
 });
 
 //main
-addBtn.addEventListener("click", onAdd);
+addBtn.addEventListener("click", () => {
+  onAdd();
+  addBtn.classList.add("invisible");
+});
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     onAdd();
