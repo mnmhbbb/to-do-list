@@ -1,62 +1,111 @@
 //기본
+const remain = document.querySelector(".header__remain");
 const addBtn = document.querySelector(".footer__btn");
 const input = document.querySelector(".footer__input");
-const items = document.querySelector(".items");
+const list = document.querySelector(".list");
 input.focus();
 let id = 0;
 
-//아이템 추가
+const localStorageKey = "toDoList";
+let toDoList = [];
+
+//리스트에 아이템 추가
 function onAdd() {
   const text = input.value;
   if (text === "") {
     input.focus();
     return;
   }
-  const item = createItem(text);
-  items.appendChild(item);
-  item.scrollIntoView({ block: "center" });
+  createItem(text);
+  saveList();
   input.value = "";
   input.focus();
+  remainList();
 }
 
-//새 아이템 만들기
+//새 아이템 만들고 화면에 보이게.
 function createItem(text) {
+  //목록 추가
   const itemRow = document.createElement("li");
-  itemRow.setAttribute("class", "items__row");
+  itemRow.setAttribute("class", "item__row");
   itemRow.setAttribute("data-id", id);
   itemRow.innerHTML = `
-  <div class="item">
-  <div class="item__left">
+    <div class="item__left">
       <i class="far fa-circle item__btn"></i>
-    <span class="item__text">${text}</span>
-  </div>
-  <button class="deleteBtn">
-    <i class="fas fa-times" data-id="${id}"></i>
-  </button>
-</div>`;
-
+      <span class="item__text">${text}</span>
+    </div>
+    <i class="fas fa-times deleteBtn" data-id="${id}"></i>
+    `;
   id++;
+  list.appendChild(itemRow);
+  itemRow.scrollIntoView({ block: "center" });
+
+  //localStorage에 넣을 형식
+  const toDoListObj = {
+    text,
+    id,
+  };
+  toDoList.push(toDoListObj);
+
   return itemRow;
 }
 
-//완료된 목록
-items.addEventListener("click", (e) => {
-  const id = e.target.dataset.id;
-  const target = e.target;
-  const toBeDeleted = document.querySelector(`.items__row[data-id="${id}"]`);
-  if (id) {
-    toBeDeleted.remove();
+//남은 할 일 알려주기
+function remainList() {
+  const remainlength = toDoList.length;
+  if (remainlength === 0) {
+    remain.classList.add("invisible");
   }
-  if (target.classList.contains("far")) {
-    target.className = "far fa-check-circle item__btn";
-    target.parentNode.classList.toggle("clicked");
-    if (!target.parentNode.classList.contains("clicked")) {
-      target.className = "far fa-circle item__btn";
-    }
+  if (remainlength) {
+    remain.classList.remove("invisible");
+    remain.innerHTML = `
+    할 일 ${remainlength}개 남음
+    `;
   }
-});
+}
 
-//main
+//리스트삭제
+list.addEventListener("click", removeList);
+
+// 체크 아이콘 이벤트리스너
+
+// 삭제버튼 이벤트리스너
+function removeList(e) {
+  const target = e.target;
+  if (target.classList.contains("fas")) {
+    const delLi = target.parentNode;
+    list.removeChild(delLi);
+
+    //설정할 때 id=0으로 설정했는데 localStorage에선 1부터 설정되네
+    //그래서 동일하게 비교하려고
+    delId = parseInt(delLi.dataset.id) + 1;
+    for (let i = 0; i < toDoList.length; i++) {
+      if (toDoList[i].id == delId) {
+        const del = i;
+        toDoList.splice(del, 1);
+      }
+    }
+    saveList();
+    remainList();
+  }
+}
+
+//localStorage에 저장
+function saveList() {
+  localStorage.setItem(localStorageKey, JSON.stringify(toDoList));
+}
+//localStorage에 저장된 값 가져오기
+function loadList() {
+  const loadList = localStorage.getItem(localStorageKey);
+  if (loadList !== null) {
+    const parseList = JSON.parse(loadList);
+    parseList.forEach((item) => {
+      createItem(item.text);
+    });
+  }
+}
+
+//main 입력에 대한...
 addBtn.addEventListener("click", () => {
   onAdd();
   addBtn.classList.add("invisible");
@@ -67,6 +116,7 @@ input.addEventListener("keypress", (e) => {
     addBtn.classList.add("invisible");
   }
 });
+
 //키보드 입력 시 클릭 버튼 활성화
 input.addEventListener("keydown", (e) => {
   if (e) {
@@ -83,7 +133,7 @@ function getTime() {
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const seconds = date.getSeconds();
-  const Colck = document.querySelector(".time");
+  const Colck = document.querySelector(".header__time");
   Colck.innerHTML = ` ${hours < 10 ? `0${hours}` : hours} : ${
     minutes < 10 ? `0${minutes}` : minutes
   } : ${seconds < 10 ? `0${seconds}` : seconds}`;
@@ -97,11 +147,18 @@ function getDate() {
   const day = date.getDay();
   const days = ["일", "월", "화", "수", "목", "금", "토"];
   const today = days[day];
-  const dateTitle = document.querySelector(".date");
+  const dateTitle = document.querySelector(".header__date");
   dateTitle.innerHTML = `
-    ${years}년 ${months + 1}월 ${dates}일 ${today}요일`;
+        ${years}년 ${months + 1}월 ${dates}일 ${today}요일`;
 }
 
-getTime();
-setInterval(getTime, 1000);
-getDate();
+//아무 동작을 하지 않아도 기본적으로 실행될
+function init() {
+  loadList();
+  remainList();
+  getTime();
+  setInterval(getTime, 1000);
+  getDate();
+}
+
+init();

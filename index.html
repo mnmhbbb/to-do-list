@@ -17,23 +17,20 @@
   </head>
   <body>
     <section class="container">
-      <div class="time">00:00:00</div>
       <header class="header">
-        <h1 class="date">2020년 12월 20일 일요일</h1>
+        <div class="header__time">00:00:00</div>
+        <h1 class="header__date">2020년 12월 20일 일요일</h1>
         <div class="divider"></div>
+        <h4 class="header__remain"></h4>
       </header>
       <main class="toDoList">
-        <ul class="items">
+        <ul class="list">
           <!-- <div class="item__row">
-            <div class="item">
               <div class="item__left">
                 <i class="far fa-circle item__btn"></i>
                 <span class="item__text">${text}</span>
               </div>
-              <button class="deleteBtn">
-                <i class="fas fa-times" data-id="${id}"></i>
-              </button>
-            </div>
+              <i class="fas fa-times deleteBtn" data-id="${id}"></i>
           </div> -->
         </ul>
       </main>

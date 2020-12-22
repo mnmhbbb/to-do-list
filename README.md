@@ -64,12 +64,10 @@
     const toBeDeleted = document.querySelector(`.items__row[data-id="${id}"]`);
     if (id) {
       toBeDeleted.remove();
-      input.focus();
     }
     if (target.classList.contains("far")) {
       target.className = "far fa-check-circle item__btn";
       target.parentNode.classList.toggle("clicked");
-      input.focus();
       if (!target.parentNode.classList.contains("clicked")) {
         target.className = "far fa-circle item__btn";
       }
@@ -80,8 +78,7 @@
   **여기까지가 ver1**  
   ![이미지](https://user-images.githubusercontent.com/66292371/102768656-d9b37580-43c4-11eb-8e60-ad35f4b8ddb0.gif)
 
+#### 201221 ver2 시작
 
-
-  - 201221 ver2 시작
-    localStorage를 사용하여 데이터가 사라지지 않게, 대폭 수정할 예정...
+    localStorage를 사용하여 데이터가 사라지지 않게, 대폭 수정할 예정.
     배열로 바꿔서 완료한 목록들 관리할 예정.
