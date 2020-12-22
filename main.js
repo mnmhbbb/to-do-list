@@ -1,4 +1,5 @@
 //기본
+const header = document.querySelector(".header");
 const remain = document.querySelector(".header__remain");
 const addBtn = document.querySelector(".footer__btn");
 const input = document.querySelector(".footer__input");
@@ -83,7 +84,7 @@ function checkItem(text) {
 
   id++;
   list.appendChild(itemCheck);
-  itemCheck.scrollIntoView({ block: "center" });
+  // itemCheck.scrollIntoView({ block: "center" });
 
   return checkItem;
 }
@@ -94,23 +95,19 @@ list.addEventListener("click", (e) => {
   const target = e.target;
   const checkLi = target.parentNode.parentNode;
   if (target.classList.contains("far")) {
-    list.removeChild(checkLi);
-    datasetId = parseInt(checkLi.dataset.id) + 1;
+    target.className = "far fa-check-circle item__btn";
     for (let i = 0; i < toDoList.length; i++) {
+      datasetId = parseInt(checkLi.dataset.id) + 1;
       if (toDoList[i].id == datasetId) {
+        list.removeChild(checkLi);
         const del = i;
-        console.log(toDoList[del]);
         checkList.unshift(toDoList[del]);
         toDoList.splice(del, 1);
-        target.className = "far fa-check-circle item__btn";
+        checkItem(checkList[0].text);
       }
     }
     saveList();
     remainList();
-    checkItem(checkList[0].text);
-
-    console.log(checkList);
-    console.log(toDoList);
   }
 });
 
@@ -153,12 +150,12 @@ function loadList() {
 //main 입력에 대한...
 addBtn.addEventListener("click", () => {
   onAdd();
-  addBtn.classList.add("hidden");
+  addBtn.classList.add("invisible");
 });
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     onAdd();
-    addBtn.classList.add("hidden");
+    addBtn.classList.add("invisible");
   }
 });
 list.addEventListener("click", removeList);
@@ -166,10 +163,10 @@ list.addEventListener("click", removeList);
 //키보드 입력 시 클릭 버튼 활성화
 input.addEventListener("keydown", (e) => {
   if (e) {
-    addBtn.classList.remove("hidden");
+    addBtn.classList.remove("invisible");
   }
   if (input.value == "") {
-    addBtn.classList.add("hidden");
+    addBtn.classList.add("invisible");
   }
 });
 
