@@ -84,7 +84,7 @@ function checkItem(text) {
 
   id++;
   list.appendChild(itemCheck);
-  // itemCheck.scrollIntoView({ block: "center" });
+  itemCheck.scrollIntoView({ block: "center" });
 
   return checkItem;
 }
