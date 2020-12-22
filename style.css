@@ -54,6 +54,7 @@ input:focus {
 .header__date {
   text-align: center;
   margin-bottom: 10px;
+  font-size: 20px;
 }
 
 .header__remain {

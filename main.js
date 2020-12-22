@@ -3,6 +3,7 @@ const remain = document.querySelector(".header__remain");
 const addBtn = document.querySelector(".footer__btn");
 const input = document.querySelector(".footer__input");
 const list = document.querySelector(".list");
+const itemCheck = document.querySelector("item__check");
 input.focus();
 let id = 0;
 
@@ -64,10 +65,57 @@ function remainList() {
   }
 }
 
+//완료한 리스트
+let checkList = [];
+
+//체크목록들
+function checkItem(text) {
+  const itemCheck = document.createElement("li");
+  itemCheck.setAttribute("class", "item__row clicked");
+  itemCheck.setAttribute("data-id", id);
+  itemCheck.innerHTML = `
+    <div class="item__left">
+      <i class="far fa-circle item__btn"></i>
+      <span class="item__text">${text}</span>
+    </div>
+    <i class="fas fa-times deleteBtn" data-id="${id}"></i>
+    `;
+
+  id++;
+  list.appendChild(itemCheck);
+  itemCheck.scrollIntoView({ block: "center" });
+
+  return checkItem;
+}
+
 //리스트삭제
 list.addEventListener("click", removeList);
+console.log(toDoList);
 
 // 체크 아이콘 이벤트리스너
+// 체크한 아이템은 체크리스트로 이동
+list.addEventListener("click", (e) => {
+  const target = e.target;
+  const delLi = target.parentNode.parentNode;
+  list.removeChild(delLi);
+  if (target.classList.contains("far")) {
+    datasetId = parseInt(delLi.dataset.id) + 1;
+    for (let i = 0; i < toDoList.length; i++) {
+      if (toDoList[i].id == datasetId) {
+        const del = i;
+        checkList.unshift(toDoList[del]);
+        toDoList.splice(del, 1);
+        target.className = "far fa-check-circle item__btn";
+      }
+    }
+    saveList();
+    remainList();
+    checkItem(checkList[0].text);
+
+    console.log(checkList);
+    console.log(toDoList);
+  }
+});
 
 // 삭제버튼 이벤트리스너
 function removeList(e) {
@@ -77,10 +125,10 @@ function removeList(e) {
     list.removeChild(delLi);
 
     //설정할 때 id=0으로 설정했는데 localStorage에선 1부터 설정되네
-    //그래서 동일하게 비교하려고
-    delId = parseInt(delLi.dataset.id) + 1;
+    //그래서 동일하게 비교하려고 +1
+    datasetId = parseInt(delLi.dataset.id) + 1;
     for (let i = 0; i < toDoList.length; i++) {
-      if (toDoList[i].id == delId) {
+      if (toDoList[i].id == datasetId) {
         const del = i;
         toDoList.splice(del, 1);
       }
