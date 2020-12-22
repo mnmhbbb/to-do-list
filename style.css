@@ -43,6 +43,7 @@ input:focus {
 
 .header {
   margin-bottom: 8px;
+  height: 90px;
 }
 
 .header__time {
@@ -130,6 +131,7 @@ input:focus {
   text-align: center;
   display: flex;
   flex-direction: column;
+  height: 60px;
 }
 
 .footer__under {
@@ -156,16 +158,20 @@ input:focus {
 }
 
 .footer__btn:hover {
-  transform: scale(1.2);
+  transform: scale(1.1);
 }
 
 .clicked {
   opacity: 0.4;
 }
 
-.invisible {
+.hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+.invisible {
+  display: none;
 }
 
 @media screen and (max-width: 576px) {

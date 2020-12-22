@@ -75,7 +75,7 @@ function checkItem(text) {
   itemCheck.setAttribute("data-id", id);
   itemCheck.innerHTML = `
     <div class="item__left">
-      <i class="far fa-circle item__btn"></i>
+      <i class="far fa-check-circle item__btn"></i>
       <span class="item__text">${text}</span>
     </div>
     <i class="fas fa-times deleteBtn" data-id="${id}"></i>
@@ -88,21 +88,18 @@ function checkItem(text) {
   return checkItem;
 }
 
-//리스트삭제
-list.addEventListener("click", removeList);
-console.log(toDoList);
-
 // 체크 아이콘 이벤트리스너
-// 체크한 아이템은 체크리스트로 이동
+// 체크한 아이템은 체크리스트로 이동 & 하단으로 이동
 list.addEventListener("click", (e) => {
   const target = e.target;
-  const delLi = target.parentNode.parentNode;
-  list.removeChild(delLi);
+  const checkLi = target.parentNode.parentNode;
   if (target.classList.contains("far")) {
-    datasetId = parseInt(delLi.dataset.id) + 1;
+    list.removeChild(checkLi);
+    datasetId = parseInt(checkLi.dataset.id) + 1;
     for (let i = 0; i < toDoList.length; i++) {
       if (toDoList[i].id == datasetId) {
         const del = i;
+        console.log(toDoList[del]);
         checkList.unshift(toDoList[del]);
         toDoList.splice(del, 1);
         target.className = "far fa-check-circle item__btn";
@@ -156,22 +153,23 @@ function loadList() {
 //main 입력에 대한...
 addBtn.addEventListener("click", () => {
   onAdd();
-  addBtn.classList.add("invisible");
+  addBtn.classList.add("hidden");
 });
 input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     onAdd();
-    addBtn.classList.add("invisible");
+    addBtn.classList.add("hidden");
   }
 });
+list.addEventListener("click", removeList);
 
 //키보드 입력 시 클릭 버튼 활성화
 input.addEventListener("keydown", (e) => {
   if (e) {
-    addBtn.classList.remove("invisible");
+    addBtn.classList.remove("hidden");
   }
   if (input.value == "") {
-    addBtn.classList.add("invisible");
+    addBtn.classList.add("hidden");
   }
 });
 
