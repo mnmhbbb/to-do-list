@@ -91,19 +91,21 @@ function checkItem(text) {
 
 // 체크 아이콘 이벤트리스너
 // 체크한 아이템은 체크리스트로 이동 & 하단으로 이동
+// 하단으로 이동x
 list.addEventListener("click", (e) => {
   const target = e.target;
   const checkLi = target.parentNode.parentNode;
   if (target.classList.contains("far")) {
     target.className = "far fa-check-circle item__btn";
+    target.parentNode.classList.add("clicked");
     for (let i = 0; i < toDoList.length; i++) {
       datasetId = parseInt(checkLi.dataset.id) + 1;
       if (toDoList[i].id == datasetId) {
-        list.removeChild(checkLi);
+        // list.removeChild(checkLi);
         const del = i;
         checkList.unshift(toDoList[del]);
         toDoList.splice(del, 1);
-        checkItem(checkList[0].text);
+        // checkItem(checkList[0].text);
       }
     }
     saveList();
