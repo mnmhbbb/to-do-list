@@ -88,7 +88,92 @@
   - 완료 체크한 아이콘은 따로 만든 배열에 담고, 체크한 해당 목록은 하단으로 내려가게, 남은 할 일이 상위에 남게 하였음(아이폰 메모어플 참조)     
   - 이를 통해 현재 남은 할 일의 개수를 안내하는 문구가 즉각적으로 반영되게 하였음      
   - 이전과 동일하게, 키보드 입력이 될 때만 입력 버튼 활성화시킴   
-  
+
+#### 구성
+### 1.
+- 페이지를 열었을 때 기본적으로 실행될 부분이다.   
+- localStorage에 저장된 목록, 남은 할 일 목록, 날짜, 시간, 초를 기본적으로 가져온다.
+```javascript
+function init() {
+  loadList();
+  remainList();
+  getDate();
+  getTime();
+  setInterval(getTime, 1000);
+}
+
+init();
+```
+### 2. 
+- 전역변수로 로컬스토리지에서 사용할 key를 선언해놓고, 
+```javascript
+const localStorageKey = "toDoList";
+let toDoList = [];
+
+//localStorage에 저장된 값 가져오기
+function loadList() {
+  const loadList = localStorage.getItem(localStorageKey);
+  if (loadList !== null) {
+    const parseList = JSON.parse(loadList);
+    parseList.forEach((item) => {
+      createItem(item.text);
+    });
+  }
+}
+```
+### 3. 입력한 항목을 생성하여 화면에 나타내기
+- `onAdd` 함수는 input에서 입력된 값으로 항목을 추가하는 역할을 한다.
+- 아무 값도 입력하지 않았을 때엔 그냥 리턴하여 종료한다.
+- 여기서 입력된 
+- `createItem` 함수는 text를 받아서 화면에 그려내는 역할을 한다. 
+- `li`태그를 만들고 내부 html을 세팅하는데, 각 아이템 구분을 위한 `id`도 같이 세팅한다.
+- id는 1씩 추가되며, 항목을 추가할 때마다 자동으로 스크롤이 포커싱된다.
+- 로컬스토리지에 보낼 형식 또한 세팅한다.
+```javascript
+//리스트에 아이템 추가
+function onAdd() {
+  const text = input.value;
+  if (text === "") {
+    input.focus();
+    return;
+  }
+  createItem(text);
+  saveList();
+  input.value = "";
+  input.focus();
+  remainList();
+}
+
+//새 아이템 만들고 화면에 보이게.
+  function createItem(text) {
+  //목록 추가
+  const itemRow = document.createElement("li");
+  itemRow.setAttribute("class", "item__row");
+  itemRow.setAttribute("data-id", id);
+  itemRow.innerHTML = `
+    <div class="item__left">
+      <i class="far fa-circle item__btn"></i>
+      <span class="item__text">${text}</span>
+    </div>
+    <i class="fas fa-times deleteBtn" data-id="${id}"></i>
+    `;
+  id++;
+  list.appendChild(itemRow);
+  itemRow.scrollIntoView({ block: "center" });
+
+  //localStorage에 넣을 형식
+  const toDoListObj = {
+    text,
+    id,
+  };
+  toDoList.push(toDoListObj);
+
+  return itemRow;
+}
+
+```
+
+
 #### 느낀 점   
 원하는 기능을 넣으려고 할수록 공부해야 할 부분이 연쇄적으로 발생했다. 부족함을 많이 느꼈다.  
 또한 함수를 여러 개 만들었지만, 각 기능이 동작하는 순서를 헷갈려서 오류를 발생시켰고 결국 많은 시간이 지체되었다. 다른 예제들을 보면서 각 상황별로 정리하는 방법을 습득해야겠다.   
