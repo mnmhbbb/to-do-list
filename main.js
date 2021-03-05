@@ -1,15 +1,16 @@
-//기본
-const header = document.querySelector(".header");
+import { getDate, getTime } from "./DateTime.js";
+import { localSetting, saveList, loadList } from "./LocalStorage.js";
+
 const remain = document.querySelector(".header__remain");
 const addBtn = document.querySelector(".footer__btn");
 const input = document.querySelector(".footer__input");
 const list = document.querySelector(".list");
-const itemCheck = document.querySelector("item__check");
+
 input.focus();
 let id = 0;
 
-const localStorageKey = "toDoList";
-let toDoList = [];
+export const localStorageKey = "toDoList";
+export let toDoList = [];
 
 //리스트에 아이템 추가
 function onAdd() {
@@ -20,14 +21,13 @@ function onAdd() {
   }
   createItem(text);
   saveList();
+  remainList();
   input.value = "";
   input.focus();
-  remainList();
 }
 
 //새 아이템 만들고 화면에 보이게.
-function createItem(text) {
-  //목록 추가
+export function createItem(text) {
   const itemRow = document.createElement("li");
   itemRow.setAttribute("class", "item__row");
   itemRow.setAttribute("data-id", id);
@@ -38,17 +38,10 @@ function createItem(text) {
     </div>
     <i class="fas fa-times deleteBtn" data-id="${id}"></i>
     `;
-  id++;
   list.appendChild(itemRow);
   itemRow.scrollIntoView({ block: "center" });
-
-  //localStorage에 넣을 형식
-  const toDoListObj = {
-    text,
-    id,
-  };
-  toDoList.push(toDoListObj);
-
+  localSetting(text, id);
+  id++;
   return itemRow;
 }
 
@@ -66,48 +59,18 @@ function remainList() {
   }
 }
 
-//완료한 리스트
-let checkList = [];
-
-//체크목록들
-function checkItem(text) {
-  const itemCheck = document.createElement("li");
-  itemCheck.setAttribute("class", "item__row clicked");
-  itemCheck.setAttribute("data-id", id);
-  itemCheck.innerHTML = `
-    <div class="item__left">
-      <i class="far fa-check-circle item__btn"></i>
-      <span class="item__text">${text}</span>
-    </div>
-    <i class="fas fa-times deleteBtn" data-id="${id}"></i>
-    `;
-
-  id++;
-  list.appendChild(itemCheck);
-  itemCheck.scrollIntoView({ block: "center" });
-
-  return checkItem;
-}
-
 // 체크 아이콘 이벤트리스너
-// 체크한 아이템은 체크리스트로 이동 & 하단으로 이동
-// 하단으로 이동x
 list.addEventListener("click", (e) => {
   const target = e.target;
   const checkLi = target.parentNode.parentNode;
   if (target.classList.contains("far")) {
     target.className = "far fa-check-circle item__btn";
     target.parentNode.classList.add("clicked");
-    for (let i = 0; i < toDoList.length; i++) {
-      datasetId = parseInt(checkLi.dataset.id) + 1;
-      if (toDoList[i].id == datasetId) {
-        // list.removeChild(checkLi);
-        const del = i;
-        checkList.unshift(toDoList[del]);
-        toDoList.splice(del, 1);
-        // checkItem(checkList[0].text);
-      }
-    }
+    const datasetId = parseInt(checkLi.dataset.id);
+    const filterList = toDoList.filter((v) => {
+      return v.id !== datasetId;
+    });
+    toDoList = filterList;
     saveList();
     remainList();
   }
@@ -119,33 +82,14 @@ function removeList(e) {
   if (target.classList.contains("fas")) {
     const delLi = target.parentNode;
     list.removeChild(delLi);
+    const datasetId = parseInt(delLi.dataset.id);
+    const filterList = toDoList.filter((v) => {
+      return v.id !== datasetId;
+    });
+    toDoList = filterList;
 
-    //설정할 때 id=0으로 설정했는데 localStorage에선 1부터 설정되네
-    //그래서 동일하게 비교하려고 +1
-    datasetId = parseInt(delLi.dataset.id) + 1;
-    for (let i = 0; i < toDoList.length; i++) {
-      if (toDoList[i].id == datasetId) {
-        const del = i;
-        toDoList.splice(del, 1);
-      }
-    }
     saveList();
     remainList();
-  }
-}
-
-//localStorage에 저장
-function saveList() {
-  localStorage.setItem(localStorageKey, JSON.stringify(toDoList));
-}
-//localStorage에 저장된 값 가져오기
-function loadList() {
-  const loadList = localStorage.getItem(localStorageKey);
-  if (loadList !== null) {
-    const parseList = JSON.parse(loadList);
-    parseList.forEach((item) => {
-      createItem(item.text);
-    });
   }
 }
 
@@ -172,32 +116,6 @@ input.addEventListener("keydown", (e) => {
   }
 });
 
-//현재시간
-function getTime() {
-  const date = new Date();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-  const Colck = document.querySelector(".header__time");
-  Colck.innerHTML = ` ${hours < 10 ? `0${hours}` : hours} : ${
-    minutes < 10 ? `0${minutes}` : minutes
-  } : ${seconds < 10 ? `0${seconds}` : seconds}`;
-}
-//오늘 날짜
-function getDate() {
-  const date = new Date();
-  const years = date.getFullYear();
-  const months = date.getMonth();
-  const dates = date.getDate();
-  const day = date.getDay();
-  const days = ["일", "월", "화", "수", "목", "금", "토"];
-  const today = days[day];
-  const dateTitle = document.querySelector(".header__date");
-  dateTitle.innerHTML = `
-        ${years}년 ${months + 1}월 ${dates}일 ${today}요일`;
-}
-
-//아무 동작을 하지 않아도 기본적으로 실행될
 function init() {
   loadList();
   remainList();
