@@ -14,7 +14,7 @@
 
 ![이미지](https://user-images.githubusercontent.com/66292371/102768656-d9b37580-43c4-11eb-8e60-ad35f4b8ddb0.gif)
 
-- 현재 시각 시, 분, 초까지 구현
+- 현재 시각 시, 분, 초까지 구현(지금도 시간이 흐르고 있음을 시각적으로,,,)
 - 할 일 입력(버튼 클릭 & 키보드 엔터)
 - 완료한 목록은 체크 아이콘으로 변경
 - 삭제하고 싶은 목록은 아이콘 클릭하여 삭제
@@ -84,7 +84,7 @@
 
 #### 기능 및 특징  
   - `localStorage`를 사용하여 새로고침이나 페이지를 닫아도 데이터가 남아있음   
-  - 이번엔 목록을 배열에 담아서 관리하고 `splice`, `push` 등과 같은 배열 메서드를 사용함      
+  - 이번엔 목록을 배열에 담아서 관리하고 `filter`, `push` 등과 같은 배열 메서드를 사용함      
   - 완료 체크한 아이콘은 따로 만든 배열에 담고, 체크한 해당 목록은 하단으로 내려가게, 남은 할 일이 상위에 남게 하였음(아이폰 메모어플 참조)     
   - 이를 통해 현재 남은 할 일의 개수를 안내하는 문구가 즉각적으로 반영되게 하였음      
   - 이전과 동일하게, 키보드 입력이 될 때만 입력 버튼 활성화시킴   
@@ -105,18 +105,21 @@ function init() {
 init();
 ```
 ### 2. 
-- 전역변수로 로컬스토리지에서 사용할 key를 선언해놓고, 
+- 전역변수로 로컬스토리지에서 사용할 key를 선언해놓고, localStorage에 그대로 보내기 위한 `toDoList` 배열을 생성하였다.
+- 로컬스토리지 관련 함수를 `LocalStorage.js`에 분리하였다.
 ```javascript
+// main.js
 const localStorageKey = "toDoList";
 let toDoList = [];
 
+// LocalStorage.js
 //localStorage에 저장된 값 가져오기
 function loadList() {
   const loadList = localStorage.getItem(localStorageKey);
   if (loadList !== null) {
     const parseList = JSON.parse(loadList);
     parseList.forEach((item) => {
-      createItem(item.text);
+      createList(item.text);
     });
   }
 }
@@ -124,11 +127,11 @@ function loadList() {
 ### 3. 입력한 항목을 생성하여 화면에 나타내기
 - `onAdd` 함수는 input에서 입력된 값으로 항목을 추가하는 역할을 한다.
 - 아무 값도 입력하지 않았을 때엔 그냥 리턴하여 종료한다.
-- 여기서 입력된 
-- `createItem` 함수는 text를 받아서 화면에 그려내는 역할을 한다. 
+- 추가한 항목을 로컬스토리지에도 저장하는 `saveList()`와, 현재 남은 일을 안내하는 `remainList()`함수도 호출한다.
+- `createList` 함수는 text를 받아서 실질적으로 화면에 나타내는 역할을 한다. 
 - `li`태그를 만들고 내부 html을 세팅하는데, 각 아이템 구분을 위한 `id`도 같이 세팅한다.
-- id는 1씩 추가되며, 항목을 추가할 때마다 자동으로 스크롤이 포커싱된다.
-- 로컬스토리지에 보낼 형식 또한 세팅한다.
+- id는 1씩 추가되며, 항목을 추가할 때마다 자동으로 스크롤링된다.
+- 로컬스토리지에 보낼 형식을 `localSetting(text, id)`함수로 구현했고, text와 id를 인자로 보낸다.
 ```javascript
 //리스트에 아이템 추가
 function onAdd() {
@@ -139,14 +142,13 @@ function onAdd() {
   }
   createItem(text);
   saveList();
+  remainList();
   input.value = "";
   input.focus();
-  remainList();
 }
 
 //새 아이템 만들고 화면에 보이게.
-  function createItem(text) {
-  //목록 추가
+export function createItem(text) {
   const itemRow = document.createElement("li");
   itemRow.setAttribute("class", "item__row");
   itemRow.setAttribute("data-id", id);
@@ -157,57 +159,114 @@ function onAdd() {
     </div>
     <i class="fas fa-times deleteBtn" data-id="${id}"></i>
     `;
-  id++;
   list.appendChild(itemRow);
   itemRow.scrollIntoView({ block: "center" });
-
-  //localStorage에 넣을 형식
-  const toDoListObj = {
-    text,
-    id,
-  };
-  toDoList.push(toDoListObj);
-
+  localSetting(text, id);
+  id++;
   return itemRow;
 }
-
 ```
-
-
-#### 느낀 점   
-원하는 기능을 넣으려고 할수록 공부해야 할 부분이 연쇄적으로 발생했다. 부족함을 많이 느꼈다.  
-또한 함수를 여러 개 만들었지만, 각 기능이 동작하는 순서를 헷갈려서 오류를 발생시켰고 결국 많은 시간이 지체되었다. 다른 예제들을 보면서 각 상황별로 정리하는 방법을 습득해야겠다.   
-그래도 처음부터 끝까지 혼자 만들고, 주변의 피드백을 받으면서 수정한 첫 결과물이라서 의미는 있다고 생각했다. 이런 미니프로젝트를 꾸준히 해야 나의 문제를 파악하고 고칠 수 있을 거라는 생각이 든다. 더 공부하면서 아쉬웠던 기능을 추가해나가고 싶다.
-
+### 4. 할 일 체크 / 할 일 삭제
+- 할 일 목록 중 체크아이콘과 삭제아이콘을 클릭하면 화면은 물론, 로컬스토리지에서도 삭제된다.
+- `filter` 메서드를 활용하여 클릭한 리스트와 현재 리스트를 비교하여 업데이트한다.
 ```javascript
+// 체크 아이콘 이벤트리스너
+list.addEventListener("click", (e) => {
+  const target = e.target;
+  const checkLi = target.parentNode.parentNode;
+  if (target.classList.contains("far")) {
+    target.className = "far fa-check-circle item__btn";
+    target.parentNode.classList.add("clicked");
+    const datasetId = parseInt(checkLi.dataset.id);
+    const filterList = toDoList.filter((v) => {
+      return v.id !== datasetId;
+    });
+    toDoList = filterList;
+    saveList();
+    remainList();
+  }
+});
+
 // 삭제버튼 이벤트리스너
 function removeList(e) {
   const target = e.target;
   if (target.classList.contains("fas")) {
     const delLi = target.parentNode;
     list.removeChild(delLi);
+    const datasetId = parseInt(delLi.dataset.id);
+    const filterList = toDoList.filter((v) => {
+      return v.id !== datasetId;
+    });
+    toDoList = filterList;
 
-    //data-id 설정할 때 id=0으로 설정했는데 localStorage에선 1부터 설정되네
-    //그래서 id를 동일하게 비교하기 위해 +1
-    datasetId = parseInt(delLi.dataset.id) + 1;
-    for (let i = 0; i < toDoList.length; i++) {
-      if (toDoList[i].id == datasetId) {
-        const del = i;
-        toDoList.splice(del, 1);
-      }
-    }
     saveList();
     remainList();
   }
 }
+list.addEventListener("click", removeList);
 ```
-내가 클릭한 아이템을 id로 구분하여, 배열에서 빼내려고 했다. 처음에는 `filter` 메서드를 이용하여 조건에 충족하는 배열을 따로 가져오면 되겠다고 생각했는데, 어떤 문제인지 해결하지 못했고, 투두리스트 배열의 전체를 돌면서 id를 하나씩 비교하는 for문을 사용하여서 해결했다. 여기서 내가 클릭한 아이템과 일치하는 인덱스를 가져와서 `splice`로 제거하는 기능을 구현했다. 간단하지만, 처음 해결했을 때 뿌듯했다.   
+### 5. 현재 날짜, 시간
+- DataTime.js으로 코드를 분리하였다.
+```javascript
+//현재시간
+function getTime() {
+  const date = new Date();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+  const Colck = document.querySelector(".header__time");
+  Colck.innerHTML = ` ${hours < 10 ? `0${hours}` : hours} : ${
+    minutes < 10 ? `0${minutes}` : minutes
+  } : ${seconds < 10 ? `0${seconds}` : seconds}`;
+}
+//오늘 날짜
+function getDate() {
+  const date = new Date();
+  const years = date.getFullYear();
+  const months = date.getMonth();
+  const dates = date.getDate();
+  const day = date.getDay();
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  const today = days[day];
+  const dateTitle = document.querySelector(".header__date");
+  dateTitle.innerHTML = `
+          ${years}년 ${months + 1}월 ${dates}일 ${today}요일`;
+}
+
+export { getDate, getTime };
+```
+
+#### 느낀 점   
+원하는 기능을 넣으려고 할수록 공부해야 할 부분이 연쇄적으로 발생했다. 부족함을 많이 느꼈다.  
+또한 함수를 여러 개 만들었지만, 각 기능이 동작하는 순서를 헷갈려서 오류를 발생시켰고 결국 많은 시간이 지체되었다. 다른 예제들을 보면서 각 상황별로 정리하는 방법을 습득해야겠다.   
+그래도 처음부터 끝까지 혼자 만들고, 주변의 피드백을 받으면서 수정한 첫 결과물이라서 의미는 있다고 생각했다. 이런 미니프로젝트를 꾸준히 해야 나의 문제를 파악하고 고칠 수 있을 거라는 생각이 든다. 더 공부하면서 아쉬웠던 기능을 추가해나가고 싶다.
+
 &nbsp;  
 &nbsp;
-### 20210120
+#### 20210120
  - ver2.1 수정!  
 ![이미지](https://user-images.githubusercontent.com/66292371/105107550-baab1f00-5afb-11eb-848b-d0695e0bc923.gif)
   - 완료한 목록 체크 시, 하단으로 이동하는 기능을 삭제했음
   - 사유: 하단으로 이동된 상태에서 새로운 목록을 추가하면 순서가 뒤죽박죽이 됨
   - 따라서, 체크 해도 자리 그대로 유지.
+  
+#### 20210305  
+  ver2.2 수정사항
+  - 기능상 수정은 없으며, 복잡하게 얽혀있는 함수를 분리하고 모듈화시키려고 노력했다.
+  - 시간/날짜 관련 모듈, 로컬스토리지 관련 모듈을 분리하였다.(이에 대한 설명은 위 **구성** 항목에 추가)
+  - 기존에 `overflow-y: scroll`을 넣었었는데, 스크롤 기능은 구현하면서 스크롤이 보이지 않게 코드를 추가하였다.
+  ```css
+  body {
+  -ms-overflow-style: none;
+}
+::-webkit-scrollbar {
+  display: none;
+} /*특정 부분 스크롤바 없애기*/
+.box {
+  -ms-overflow-style: none;
+}
+.box::-webkit-scrollbar {
+  display: none;
+}
+  ```
   
